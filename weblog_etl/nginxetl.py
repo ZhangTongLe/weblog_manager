@@ -2,11 +2,26 @@
 #coding:utf8
 import re
 from common.functions import trasferdate
+from pyinotify import  WatchManager, Notifier,ProcessEvent,IN_DELETE, IN_CREATE,IN_MODIFY
 import hashlib
 
 class Nginxetl:
-    #__logfile=open("testapi.uhouzz.com.access.log")
+    #__logfile=open("access.log")
     #203.208.60.230
+    __remote_addr = r"?P<remote_addr>[\d.]*\.[\d.]*\.[\d.]*\.[\d.]*"
+    __remote_port = r"?P<remote_port>\d+"
+    __http_x_forwarded_for = r"?P<http_x_forwarded_for>[\d.]*\.[\d.]*\.[\d.]*\.[\d.]*"
+    __upstream_addr = r"?P<upstream_addr>[\d.]*\.[\d.]*\.[\d.]*\.[\d.]*"
+    __time_iso8601 = r"?P<time>[\d-]*T[\d:]*\+[\d:]*"
+    __request_method = r"?P<request_method>OPTIONS|GET|HEAD|POST|PUT|DELETE|TRACE"
+    __server_name = r"?P<server_name>[\S]*"
+    __uri = r'?P<uri>^/[\S]*'
+    __args = r'?P<args>[\S]*'
+    __status = r"?P<status>\d+"
+    __http_referer = r'?P<http_referer>[\S]*'
+    __body_bytes_sent = r'?P<body_bytes_sent>\d+'
+    __request_time = r'?P<request_time>\d+'
+
     __ipP = r"?P<ip>[\d.]*"
     __timeP = r"""?P<time>\[[^\[\]]*\]"""
     #"GET /EntpShop.do?method=view&shop_id=391796 HTTP/1.1"
@@ -24,6 +39,10 @@ class Nginxetl:
     __nginxLogPattern = None
     __lastline = ''
     __linenum = 0
+    __Pattern = r'v1{|](%s):(%s){|](%s){|](%s){|] \
+    (%s){|](%s){|](%s){|](%s){|](%s){|](%s){|](%s){|] \
+    (%s){|](%s){|](%s){|](%s){|](%s) \
+    {|](%s){|](%s)'
     def __init__(self, Pattern=r"(%s)\ -\ -\ (%s)\ (%s)\ (%s)\ (%s)\ (%s)\ (%s)"):
         self.__nginxLogPattern = re.compile(Pattern % (self.__ipP, self.__timeP, self.__requestP, self.__statusP, self.__bodyBytesSentP, self.__referP, self.__userAgentP), re.VERBOSE)
 
